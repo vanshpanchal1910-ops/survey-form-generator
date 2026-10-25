@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI-Based Automatic Survey Form Generator</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <p class="eyebrow">Your ideas, better questions</p>
+      <h1>AI-Based Automatic Survey Form Generator</h1>
+      <p>Create editable survey questions automatically from any topic.</p>
+    </div>
+  </header>
+
+  <main class="app">
+    <section class="panel generator-panel">
+      <h2>Create Survey</h2>
+
+      <form id="surveyForm" class="form-grid">
+        <label>
+          Survey Title
+          <input type="text" id="surveyTitle" placeholder="Example: College Canteen Feedback" required>
+        </label>
+
+        <label>
+          Survey Topic
+          <input type="text" id="surveyTopic" placeholder="Example: college canteen" required>
+        </label>
+
+        <label>
+          Number of Questions
+          <input type="number" id="questionCount" min="3" max="15" value="5" required>
+        </label>
+
+        <label>
+          Question Type
+          <select id="questionType">
+            <option value="mixed">Mixed</option>
+            <option value="rating">Rating</option>
+            <option value="yes-no">Yes/No</option>
+            <option value="mcq">MCQ</option>
+            <option value="short">Short Answer</option>
+          </select>
+        </label>
+
+        <button type="submit" class="primary-btn">Generate Survey</button>
+      </form>
+    </section>
+
+    <section class="panel output-panel">
+      <div class="section-heading">
+        <h2>Generated Survey</h2>
+        <div class="actions">
+          <button id="addQuestionBtn" type="button">Add</button>
+          <button id="saveSurveyBtn" type="button">Save</button>
+          <button id="printSurveyBtn" type="button">Print/PDF</button>
+        </div>
+      </div>
+
+      <div id="surveyPreview" class="survey-preview empty">
+        Enter survey details and click Generate Survey.
+      </div>
+    </section>
+
+    <section class="panel saved-panel">
+      <div class="section-heading">
+        <h2>Saved Surveys</h2>
+        <button id="clearSavedBtn" type="button">Clear</button>
+      </div>
+      <div id="savedSurveys" class="saved-list"></div>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
