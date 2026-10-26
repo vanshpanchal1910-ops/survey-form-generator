@@ -263,19 +263,27 @@
     generateButton.classList.add("is-loading");
     generateLabel.textContent = "Thinking through your fields…";
     showNotice(generationStatus, "Reading your prompt and building the form…");
+    let useBrowserFallback = false;
     try {
       const response = await fetch(`${API_BASE}/api/forms/generate`, {
         method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ prompt })
       });
       const data = await response.json().catch(() => ({}));
-      if (response.status === 404) throw new Error("Flask generation endpoint not found.");
-      if (!response.ok) throw new Error(data.error || "Form generation failed.");
+      if (!response.ok) {
+        if (response.status === 400 || response.status === 422) throw new Error(data.error || "Please check your prompt and try again.");
+        useBrowserFallback = true;
+        throw new Error(data.error || "Flask backend is unavailable.");
+      }
+      if (!data.form || !Array.isArray(data.form.questions)) {
+        useBrowserFallback = true;
+        throw new Error("Flask returned an invalid form response.");
+      }
       currentForm = { ...data.form, generationMode: data.generationMode, generationNotice: data.notice };
       renderEditor();
       showToast("Your form is ready to edit.");
       formEditor.scrollIntoView({ behavior: "smooth", block: "start" });
     } catch (error) {
-      if (error.message.includes("Failed to fetch") || error.message.includes("not found") || error instanceof TypeError) {
+      if (useBrowserFallback || error.message.includes("Failed to fetch") || error.message.includes("not found") || error instanceof TypeError) {
         currentForm = browserFallbackForm(prompt);
         renderEditor();
         showToast("Form generated in browser mode.");
