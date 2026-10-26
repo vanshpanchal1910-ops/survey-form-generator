@@ -22,17 +22,18 @@
       <form id="surveyForm" class="form-grid">
         <label>
           Survey Title
-          <input type="text" id="surveyTitle" placeholder="Example: College Canteen Feedback" required>
+          <input type="text" id="surveyTitle" placeholder="Example: College Canteen Feedback" maxlength="80" required>
         </label>
 
         <label>
           Survey Topic
-          <input type="text" id="surveyTopic" placeholder="Example: college canteen" required>
+          <input type="text" id="surveyTopic" placeholder="Example: college canteen" maxlength="100" required>
         </label>
 
         <label>
           Number of Questions
-          <input type="number" id="questionCount" min="3" max="15" value="5" required>
+          <input type="number" id="questionCount" min="3" max="15" value="5" required aria-describedby="questionCountHint">
+          <span class="field-hint" id="questionCountHint">Choose between 3 and 15 questions.</span>
         </label>
 
         <label>
@@ -44,18 +45,20 @@
             <option value="mcq">MCQ</option>
             <option value="short">Short Answer</option>
           </select>
+          <span class="field-hint">Mixed gives you a variety of response styles.</span>
         </label>
 
-        <button type="submit" class="primary-btn">Generate Survey</button>
+        <button type="submit" class="primary-btn" id="generateSurveyBtn"><span>Generate my survey</span><span class="button-arrow" aria-hidden="true">→</span></button>
       </form>
     </section>
 
     <section class="panel output-panel">
       <div class="section-heading">
         <h2>Generated Survey</h2>
-        <div class="actions">
+        <div class="actions" hidden>
           <button id="addQuestionBtn" type="button">Add</button>
           <button id="saveSurveyBtn" type="button">Save</button>
+          <button id="downloadSurveyBtn" type="button">Download Form</button>
           <button id="printSurveyBtn" type="button">Print/PDF</button>
         </div>
       </div>
@@ -73,6 +76,8 @@
       <div id="savedSurveys" class="saved-list"></div>
     </section>
   </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
   <script src="script.js"></script>
 </body>
