@@ -3,82 +3,116 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI-Based Automatic Survey Form Generator</title>
+  <meta name="theme-color" content="#191c36">
+  <title>AI Form Studio</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <header class="topbar">
     <div>
-      <p class="eyebrow">Your ideas, better questions</p>
-      <h1>AI-Based Automatic Survey Form Generator</h1>
-      <p>Create editable survey questions automatically from any topic.</p>
+      <p class="eyebrow">AI FORM STUDIO</p>
+      <h1>Turn your idea into a form.</h1>
+      <p>Describe what you need. Get a custom form you can edit, save, and use.</p>
     </div>
   </header>
 
-  <main class="app">
-    <section class="panel generator-panel">
-      <h2>Create Survey</h2>
+  <main class="form-builder">
+    <div class="builder-grid">
+      <section class="panel prompt-panel">
+        <div class="panel-kicker"><span class="step-dot">01</span><span>Start with a prompt</span></div>
+        <h2>What should your form collect?</h2>
+        <p class="panel-description">Describe the form and list the fields you want. Keep the order you want them to appear.</p>
+        <form id="promptForm" class="prompt-form">
+          <label class="visually-hidden" for="formPrompt">Describe the form you want</label>
+          <textarea id="formPrompt" maxlength="4000" rows="8" placeholder="Create a Student Data Collection Form. Add questions for Student Name, Enrollment Number, Division, Branch, Semester, Email Address, Mobile Number, and Date of Birth." required></textarea>
+          <div class="prompt-meta"><span>Be specific for the best result</span><span id="promptCounter">0 / 4000</span></div>
+          <button type="submit" class="primary-btn generate-form-btn" id="generateFormBtn">
+            <span class="generate-label">Generate form</span><span class="button-arrow" aria-hidden="true">→</span>
+          </button>
+        </form>
+        <div class="prompt-tip"><span aria-hidden="true">✦</span><span>Try: “Create an event registration form with name, email, session choice, and dietary needs.”</span></div>
+        <p id="generationStatus" class="generation-status" role="status" aria-live="polite">Generation method will appear here.</p>
+      </section>
 
-      <form id="surveyForm" class="form-grid">
-        <label>
-          Survey Title
-          <input type="text" id="surveyTitle" placeholder="Example: College Canteen Feedback" maxlength="80" required>
-        </label>
-
-        <label>
-          Survey Topic
-          <input type="text" id="surveyTopic" placeholder="Example: college canteen" maxlength="100" required>
-        </label>
-
-        <label>
-          Number of Questions
-          <input type="number" id="questionCount" min="3" max="15" value="5" required aria-describedby="questionCountHint">
-          <span class="field-hint" id="questionCountHint">Choose between 3 and 15 questions.</span>
-        </label>
-
-        <label>
-          Question Type
-          <select id="questionType">
-            <option value="mixed">Mixed</option>
-            <option value="rating">Rating</option>
-            <option value="yes-no">Yes/No</option>
-            <option value="mcq">MCQ</option>
-            <option value="short">Short Answer</option>
-          </select>
-          <span class="field-hint">Mixed gives you a variety of response styles.</span>
-        </label>
-
-        <button type="submit" class="primary-btn" id="generateSurveyBtn"><span>Generate my survey</span><span class="button-arrow" aria-hidden="true">→</span></button>
-      </form>
-    </section>
-
-    <section class="panel output-panel">
-      <div class="section-heading">
-        <h2>Generated Survey</h2>
-        <div class="actions" hidden>
-          <button id="addQuestionBtn" type="button">Add</button>
-          <button id="saveSurveyBtn" type="button">Save</button>
-          <button id="downloadSurveyBtn" type="button">Download Form</button>
-          <button id="printSurveyBtn" type="button">Print/PDF</button>
+      <section class="panel form-editor-panel">
+        <div class="editor-heading">
+          <div>
+            <div class="panel-kicker"><span class="step-dot">02</span><span>Make it yours</span></div>
+            <h2>Your form</h2>
+          </div>
+          <span id="generationBadge" class="generation-badge" hidden></span>
         </div>
-      </div>
 
-      <div id="surveyPreview" class="survey-preview empty">
-        Enter survey details and click Generate Survey.
-      </div>
-    </section>
+        <div id="formEditorEmpty" class="empty-editor">
+          <span class="empty-icon" aria-hidden="true">✧</span>
+          <strong>Your form will appear here</strong>
+          <span>Write a prompt and generate a form to start editing.</span>
+        </div>
 
-    <section class="panel saved-panel">
-      <div class="section-heading">
-        <h2>Saved Surveys</h2>
-        <button id="clearSavedBtn" type="button">Clear</button>
-      </div>
-      <div id="savedSurveys" class="saved-list"></div>
-    </section>
+        <div id="formEditor" hidden>
+          <div class="form-metadata">
+            <label>Form title<input id="formTitle" type="text" maxlength="120" placeholder="Form title"></label>
+            <label>Description<textarea id="formDescription" rows="2" maxlength="500" placeholder="Tell people what this form is for"></textarea></label>
+          </div>
+          <div class="field-list-heading">
+            <div><h3>Form fields</h3><p>Edit labels, types, options, and required settings.</p></div>
+            <button id="addFieldBtn" type="button" class="secondary-btn">＋ Add field</button>
+          </div>
+          <div id="fieldEditorList" class="field-editor-list"></div>
+          <div class="form-actions">
+            <button id="saveFormBtn" type="button" class="primary-btn">Save form</button>
+            <button id="previewFormBtn" type="button" class="secondary-btn" disabled>Preview &amp; fill</button>
+            <button id="downloadDynamicFormBtn" type="button" class="secondary-btn">Download form</button>
+            <button id="printDynamicFormBtn" type="button" class="secondary-btn">Print</button>
+            <button id="viewResponsesBtn" type="button" class="secondary-btn" disabled>View responses</button>
+          </div>
+          <p id="formSaveStatus" class="form-save-status" role="status" aria-live="polite"></p>
+
+          <section id="fillPreviewPanel" class="fill-preview-panel" hidden>
+            <div class="field-list-heading"><div><h3>Live form preview</h3><p>This preview submits a response to the saved form.</p></div><button id="closePreviewBtn" type="button" class="icon-btn" aria-label="Close preview">×</button></div>
+            <form id="liveResponseForm" class="live-response-form"></form>
+          </section>
+
+          <section id="responsesPanel" class="responses-panel" hidden>
+            <div class="field-list-heading"><div><h3>Responses</h3><p id="responseCountLabel">Saved responses for this form.</p></div><button id="downloadResponsesBtn" type="button" class="secondary-btn">Download JSON</button></div>
+            <div id="responseList" class="response-list"></div>
+          </section>
+        </div>
+      </section>
+
+      <section class="panel saved-forms-panel">
+        <div class="field-list-heading">
+          <div><div class="panel-kicker"><span class="step-dot">03</span><span>Your library</span></div><h2>Saved forms</h2></div>
+          <button id="refreshFormsBtn" type="button" class="secondary-btn">Refresh</button>
+        </div>
+        <div id="savedFormsList" class="saved-forms-list"><p class="empty-library">Your saved forms will show up here.</p></div>
+      </section>
+    </div>
   </main>
 
-  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <details class="classic-tools">
+    <summary>Classic survey generator</summary>
+    <div class="app">
+      <section class="panel generator-panel">
+        <h2>Create Survey</h2>
+        <form id="surveyForm" class="form-grid">
+          <label>Survey Title<input type="text" id="surveyTitle" placeholder="Example: College Canteen Feedback" maxlength="80" required></label>
+          <label>Survey Topic<input type="text" id="surveyTopic" placeholder="Example: college canteen" maxlength="100" required></label>
+          <label>Number of Questions<input type="number" id="questionCount" min="3" max="15" value="5" required aria-describedby="questionCountHint"><span class="field-hint" id="questionCountHint">Choose between 3 and 15 questions.</span></label>
+          <label>Question Type<select id="questionType"><option value="mixed">Mixed</option><option value="rating">Rating</option><option value="yes-no">Yes/No</option><option value="mcq">MCQ</option><option value="short">Short Answer</option></select><span class="field-hint">Mixed gives you a variety of response styles.</span></label>
+          <button type="submit" class="primary-btn" id="generateSurveyBtn"><span>Generate my survey</span><span class="button-arrow" aria-hidden="true">→</span></button>
+        </form>
+      </section>
+      <section class="panel output-panel">
+        <div class="section-heading"><h2>Generated Survey</h2><div class="actions" hidden><button id="addQuestionBtn" type="button">Add</button><button id="saveSurveyBtn" type="button">Save</button><button id="downloadSurveyBtn" type="button">Download Form</button><button id="printSurveyBtn" type="button">Print/PDF</button></div></div>
+        <div id="surveyPreview" class="survey-preview empty">Enter survey details and click Generate Survey.</div>
+      </section>
+      <section class="panel saved-panel"><div class="section-heading"><h2>Saved Surveys</h2><button id="clearSavedBtn" type="button">Clear</button></div><div id="savedSurveys" class="saved-list"></div></section>
+    </div>
+  </details>
 
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="form-builder.js"></script>
   <script src="script.js"></script>
 </body>
 </html>

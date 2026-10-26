@@ -1,84 +1,57 @@
 # AI-Based Automatic Survey Form Generator
 
-This is a Diploma IT Engineering minor project. It creates survey questions automatically from a topic entered by the user.
+A responsive form builder that turns a natural-language prompt into an editable form. Flask validates and stores forms and submissions in SQLite. When an OpenAI API key is configured, the backend uses the Responses API with Structured Outputs; otherwise it clearly reports that it used a rule-based fallback.
 
-## How to Open in VS Code
+## Run locally
 
-1. Open VS Code.
-2. Click `File > Open Folder`.
-3. Select this folder:
-   `AI-Based-Automatic-Survey-Form-Generator`
-4. Open the VS Code terminal.
-5. Install backend packages:
-   `pip install -r requirements.txt`
-6. Start the backend:
-   `python app.py`
-7. Open this URL in browser:
-   `http://127.0.0.1:5000`
+1. Install Python 3.10 or newer.
+2. Open this folder in a terminal.
+3. Install dependencies: `pip install -r requirements.txt`
+4. Optional: configure OpenAI in the backend environment. PowerShell for the current terminal:
+   `$env:OPENAI_API_KEY="your-key"`
+   Optional model: `$env:OPENAI_MODEL="gpt-4o-mini"`
+5. Start Flask: `python app.py`
+6. Open `http://127.0.0.1:5000`.
 
-Simple frontend-only method:
+Keep API keys in environment variables. Do not put them in HTML, JavaScript, or a public GitHub repository. Without a key, the fallback can infer common field types and form categories, but works best when the prompt explicitly lists its fields. It does not have the language understanding of an AI model.
 
-1. Open `index.html`.
-2. Right-click and choose `Open with Live Server`.
-3. The app will still work using browser storage if Flask is not running.
+## Publish with GitHub Pages
 
-## Project Files
+GitHub Pages serves static files (HTML, CSS, and JavaScript); it does not run this Flask application or its SQLite database. A Pages deployment can show the interface, but prompt generation through Flask, cross-device form persistence, and database response collection require the Flask backend to be hosted on a Python-capable service. Set `OPENAI_API_KEY` as a secret/environment variable on that backend host. Then configure the frontend API base in `form-builder.js` for the hosted backend and configure appropriate CORS origins in `app.py` before publishing. Never put the backend key in the Pages code. Local-browser storage is only a per-browser fallback and is not a shared database.
 
-- `index.html` - page structure
-- `style.css` - design and responsive layout
-- `script.js` - survey generation, edit, save, and print logic
-- `app.py` - Python Flask backend API
-- `requirements.txt` - backend packages
+## Form builder
 
-## Features
+- Describe the form in the prompt; list requested fields and any choices or required/optional rules.
+- Generate, then edit title, description, fields, types, options, required state, and question order.
+- Save the form; submit preview responses; view private responses in the browser that owns the form; download a standalone form or response JSON.
+- Supported fields: short text, long text, number, email, phone, date, dropdown, radio, checkboxes, yes/no, and file upload.
+- The backend validates field definitions and submitted answers. File uploads are limited by extension and size.
+- No form-sharing/link control is provided.
 
-- Enter survey title and topic
-- Select number of questions
-- Select question type
-- Generate automatic questions
-- Edit generated questions
-- Delete questions
-- Add new question
-- Save surveys in browser storage
-- Open saved surveys
-- Print or save survey as PDF
+## Existing classic survey tools
 
-## Working Process
+The previous survey generator remains available in the collapsed **Classic survey tools** section. Its API routes are retained for compatibility.
 
-1. User enters survey title.
-2. User enters survey topic.
-3. User selects number of questions.
-4. User selects question type.
-5. JavaScript sends the data to Flask backend.
-6. Flask generates questions using predefined AI-style templates.
-7. User edits the questions if required.
-8. User saves the survey.
-9. Backend stores the survey while the server is running.
-10. User prints or exports it as PDF.
+## Project files
 
-## Backend API Routes
+- `index.html` — prompt, editor, preview, saved forms, and existing classic tools
+- `style.css` — responsive layout and visual styles
+- `form-builder.js` — dynamic form generation workflow and UI
+- `script.js` — legacy survey generation and storage UI
+- `app.py` — Flask routes, validation, optional AI integration, and SQLite persistence
+- `requirements.txt` — Python dependencies
 
-- `GET /` - opens the main project page
-- `POST /api/generate` - generates survey questions
-- `GET /api/surveys` - shows saved surveys
-- `POST /api/surveys` - saves a survey
-- `DELETE /api/surveys` - clears saved surveys
+## API routes
 
-## Viva Explanation
+- `POST /api/forms/generate` — interpret a prompt and return a validated form definition
+- `GET /api/forms` — list saved forms
+- `POST /api/forms` — create or update a form
+- `GET /api/forms/<id>` — retrieve a saved form
+- `DELETE /api/forms/<id>` — delete a form (owner token required)
+- `GET /api/forms/<id>/responses` — read private responses (owner token required)
+- `POST /api/forms/<id>/responses` — validate and save a response
+- Legacy routes: `/api/generate` and `/api/surveys`
 
-This project uses a rule-based AI approach. The system understands the selected topic and combines it with predefined question templates. According to the selected question type, it creates rating, yes/no, MCQ, and short-answer questions.
+## Database
 
-For example, if the topic is `college canteen`, the system can generate:
-
-- How satisfied are you with college canteen?
-- Would you recommend college canteen to others?
-- What improvement would you suggest for college canteen?
-
-## Future Scope
-
-- Connect OpenAI API for advanced question generation
-- Add login and registration
-- Store surveys in MySQL
-- Add response collection
-- Generate charts for survey answers
-- Add Google Forms integration
+The application creates/updates `surveys`, `dynamic_forms`, and `form_responses` tables in `surveys.db` beside `app.py` on startup. Responses link to their form through a foreign key. Uploaded file contents are stored under `uploads/`; response records keep the safe original filename and generated stored filename.
